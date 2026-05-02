@@ -40,14 +40,12 @@
 
   .world-map { position: relative; width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; z-index: 1; }
 
-  /* 黄金の道：初期値 0% から JS で伸ばす */
   .path-line { 
     position: absolute; top: 80px; width: 10px; height: 0%;
     background: linear-gradient(to bottom, var(--dq-gold), #ff8c00); 
     z-index: 0; border-radius: 5px; box-shadow: 0 0 15px var(--dq-gold);
     transition: height 0.5s ease;
   }
-  /* 背景の暗い道 */
   .path-bg-line {
     position: absolute; top: 80px; bottom: 80px; width: 10px;
     background: var(--path-bg); z-index: -1; border-radius: 5px;
@@ -94,7 +92,6 @@
     text-shadow: 2px 2px 0px var(--dq-blue), 0 0 15px var(--dq-gold); transition: 2s;
   }
   body.all-cleared .clear-message { opacity: 1; animation: bounce 1.5s infinite; }
-  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
   .footer { margin: 60px 0 20px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; padding-top: 15px; width: 100%; z-index: 1; }
 </style>
@@ -138,14 +135,13 @@
 <div class="footer" id="status-label">冒険の書を読み込み中...</div>
 
 <script>
-  const STORAGE_KEY = 'DQ_HAPPY_QUEST_FINAL_V1';
+  const STORAGE_KEY = 'DQ_HAPPY_QUEST_B85_V1';
   const checkboxes = document.querySelectorAll('.quest-check');
   const area1 = document.getElementById('area-1');
   const area2 = document.getElementById('area-2');
   const pathLine = document.getElementById('path-line');
   const statusLabel = document.getElementById('status-label');
 
-  // 音源生成関数
   function playMelody(notes) {
     const context = new (window.AudioContext || window.webkitAudioContext)();
     let time = context.currentTime;
@@ -156,29 +152,35 @@
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(n.f, time);
         gain.gain.setValueAtTime(0.2, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + n.d);
+        const fade = n.s ? 0.05 : n.d * 0.8;
+        gain.gain.exponentialRampToValueAtTime(0.001, time + fade);
         osc.connect(gain); gain.connect(context.destination);
         osc.start(time); osc.stop(time + n.d);
       }
-      time += n.d + (n.g || 0.03);
+      time += n.d;
     });
   }
 
-  // ダンジョン1突破音：ドッドッドミレッド〜♪（裏打ち）
+  // ダンジョン1突破音：BPM 85 指定リズム
   function playDungeon1Sound() {
-    const u = 0.15;
+    // BPM 85 の四分音符は約 0.7秒。八分音符(u)はその半分。
+    const u = 60 / 85 / 2; 
     playMelody([
-      { f: 0, d: u }, { f: 523, d: u }, { f: 523, d: u }, { f: 523, d: u*0.75 },
-      { f: 659, d: u*0.25 }, { f: 587, d: u*0.4 }, { f: 523, d: u*3 }
+      { f: 0, d: u },                   // 八分休符
+      { f: 523.25, d: u },              // ド (八分音符)
+      { f: 523.25, d: u },              // ド (八分音符)
+      { f: 523.25, d: u * 0.75 },       // ド (付点十六分音符)
+      { f: 659.25, d: u * 0.25 },       // ミ (十六分音符)
+      { f: 587.33, d: u * 0.5, s: true }, // レ (スタッカート)
+      { f: 523.25, d: u * 3 }           // ド (付点四分音符)
     ]);
   }
 
-  // お城到達音：Happy & サビ風ファンファーレ（さらにHappy!）
   function playGoalSound() {
-    const u = 0.12; // テンポ早め
+    const u = 0.15;
     playMelody([
-      { f: 523, d: u }, { f: 659, d: u }, { f: 783, d: u }, { f: 1046, d: u*2 }, // ドミソド〜
-      { f: 0, d: u }, { f: 880, d: u }, { f: 783, d: u }, { f: 659, d: u }, { f: 523, d: u*4 } // ラソミド〜〜
+      { f: 523, d: u }, { f: 659, d: u }, { f: 783, d: u }, { f: 1046, d: u*2 },
+      { f: 0, d: u }, { f: 880, d: u }, { f: 783, d: u }, { f: 659, d: u }, { f: 523, d: u*4 }
     ]);
   }
 
@@ -218,9 +220,8 @@
     const isArea1Done = area1Cbs.every(cb => cb.checked);
     const isAllDone = Array.from(checkboxes).every(cb => cb.checked);
     
-    // 光の道の長さを計算
     const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-    const progressPercent = (checkedCount / checkboxes.length) * 90; // 最大90%まで伸びる
+    const progressPercent = (checkedCount / checkboxes.length) * 85; 
     pathLine.style.height = progressPercent + "%";
 
     if (isArea1Done) {

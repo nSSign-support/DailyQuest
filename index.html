@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAILY QUEST - 推し活応援</title>
+<title>DAILY QUEST - デイリーQUEST</title>
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
   :root { 
@@ -14,8 +14,7 @@
     background: #000; 
     color: var(--dq-white); font-family: 'DotGothic16', sans-serif; 
     margin: 0; padding: 40px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
+    overflow-x: hidden; position: relative;
   }
 
   /* --- 星空の演出 --- */
@@ -42,11 +41,10 @@
   @keyframes star-blink { 0% { opacity: 0.5; } 100% { opacity: 0.9; } }
 
   .main-title { 
-    font-family: 'Inter', sans-serif; font-weight: 900; font-size: 48px; color: #ffffff; text-align: center;
+    font-family: 'Inter', sans-serif; font-weight: 900; font-size: 44px; color: #ffffff; text-align: center;
     letter-spacing: -1.5px; -webkit-text-stroke: 1.2px #000;
     text-shadow: 4px 4px 0px var(--dq-blue), 0 0 25px rgba(255,255,255,0.4);
-    margin-bottom: 40px; line-height: 1.1;
-    z-index: 1;
+    margin-bottom: 40px; line-height: 1.1; z-index: 1;
   }
 
   .world-map { position: relative; width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; z-index: 1; }
@@ -57,7 +55,7 @@
   }
 
   .dungeon-area { width: 100%; transition: 0.8s ease; position: relative; z-index: 1; margin-bottom: 40px; }
-  .dungeon-area.is-locked { opacity: 0.2; filter: grayscale(1) blur(2px); pointer-events: none; }
+  .dungeon-area.is-locked { opacity: 0.15; filter: grayscale(1) blur(3px); pointer-events: none; }
 
   .dungeon-header { 
     z-index: 2; background: rgba(0, 0, 0, 0.8); border: 4px double #fff; padding: 10px; 
@@ -84,12 +82,12 @@
   .quest-window { 
     background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 12px; font-size: 14px; flex: 1; 
     box-shadow: 4px 4px 0px rgba(0,0,0,0.8); pointer-events: none;
-    white-space: pre-line; line-height: 1.4;
-    backdrop-filter: blur(5px);
+    white-space: pre-line; line-height: 1.4; backdrop-filter: blur(5px);
   }
   .quest-check:checked ~ .quest-window { border-color: var(--dq-gold); color: var(--dq-gold); }
 
-  .goal-zone { margin-top: 40px; text-align: center; opacity: 0.1; transition: 2s ease; transform: scale(0.9); }
+  /* クリア演出 */
+  .goal-zone { margin-top: 40px; text-align: center; opacity: 0.05; transition: 2s ease; transform: scale(0.8); }
   body.all-cleared .goal-zone { opacity: 1; transform: scale(1.1); }
   .castle-icon { font-size: 80px; display: block; filter: brightness(0.1) grayscale(1); transition: 2.5s ease-in-out; }
   body.all-cleared .castle-icon { filter: brightness(1.2) grayscale(0) drop-shadow(0 0 40px var(--dq-gold)); }
@@ -115,73 +113,90 @@
   <div class="path-line"></div>
   
   <div id="area-1" class="dungeon-area">
-    <div class="dungeon-header">第1章：毎日の修練</div>
+    <div class="dungeon-header">ダンジョン1：めざめよ！COSMO</div>
     <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
     <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 広告視聴❤️</div></div>
     <div class="quest-item"><input type="checkbox" id="q3" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP ルーレット❤️</div></div>
-    <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙</div></div>
+    <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙
+（5日連続満点🩷）</div></div>
     <div class="quest-item"><input type="checkbox" id="q5" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast チェックイン 💙</div></div>
-    <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴(20)💙</div></div>
+    <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（20回）</div></div>
   </div>
 
   <div id="area-2" class="dungeon-area is-locked">
-    <div class="dungeon-header">第2章：頂点への道</div>
-    <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat 広告視聴💗</div></div>
-    <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat クイズ💗</div></div>
-    <div class="quest-item"><input type="checkbox" id="q9" class="quest-check"><div class="node-icon"></div><div class="quest-window">LiNC 広告視聴💟</div></div>
+    <div class="dungeon-header">ダンジョン2：そして頂点へ…</div>
+    <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（40回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（60回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q9" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat 広告視聴💗（15回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q10" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat クイズ💗（1回無料）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q11" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat リワード広告視聴💗</div></div>
+    <div class="quest-item"><input type="checkbox" id="q12" class="quest-check"><div class="node-icon"></div><div class="quest-window">LiNC 広告視聴💟（30回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q13" class="quest-check"><div class="node-icon"></div><div class="quest-window">tin 広告視聴💟（20回）</div></div>
   </div>
 
   <div class="goal-zone">
     <span class="castle-icon">🏰</span>
-    <div class="clear-message">MISSION CLEAR!</div>
+    <div class="clear-message">TODAY'S MISSION CLEAR!</div>
   </div>
 </div>
 
 <div class="footer" id="status-label">冒険の書を読み込み中...</div>
 
 <script>
-  const STORAGE_KEY = 'DQ_DAILY_QUEST_SAVE';
+  const STORAGE_KEY = 'DQ_QUEST_SOUND_V1';
   const checkboxes = document.querySelectorAll('.quest-check');
   const area1 = document.getElementById('area-1');
   const area2 = document.getElementById('area-2');
   const statusLabel = document.getElementById('status-label');
 
-  // 今日を判定する文字列 (YYYY-MM-DD)
+  // レベルアップ音の合成
+  function playLevelUpSound() {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [
+      { f: 523.25, t: 0.1 }, // ド
+      { f: 523.25, t: 0.1 }, // ド
+      { f: 523.25, t: 0.1 }, // ド
+      { f: 523.25, t: 0.2 }, // ド (少し長く)
+      { f: 415.30, t: 0.2 }, // ソ#
+      { f: 466.16, t: 0.2 }, // シb
+      { f: 523.25, t: 0.4 }  // ド (高い)
+    ];
+    let time = context.currentTime;
+    notes.forEach(note => {
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      osc.type = 'square'; // レトロなピコピコ音
+      osc.frequency.setValueAtTime(note.f, time);
+      gain.gain.setValueAtTime(0.1, time);
+      gain.gain.exponentialRampToValueAtTime(0.01, time + note.t);
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.start(time);
+      osc.stop(time + note.t);
+      time += note.t + 0.02;
+    });
+  }
+
   function getTodayStr() {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
   }
 
-  // データの保存
   function saveProgress() {
-    const checkedIds = Array.from(checkboxes)
-      .filter(cb => cb.checked)
-      .map(cb => cb.id);
-    
-    const saveData = {
-      date: getTodayStr(),
-      checked: checkedIds
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
-    updateUI();
+    const checkedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayStr(), checked: checkedIds }));
+    updateUI(true); // 音を鳴らすフラグを立てる
   }
 
-  // データの読み込み
   function loadProgress() {
     const rawData = localStorage.getItem(STORAGE_KEY);
-    if (!rawData) return resetToday();
-
+    if (!rawData) { updateUI(false); return; }
     const saveData = JSON.parse(rawData);
-    
-    // 日付が変わっていたらリセット
     if (saveData.date !== getTodayStr()) {
       resetToday();
     } else {
-      // 続きを復元
-      saveData.checked.forEach(id => {
-        const cb = document.getElementById(id);
-        if (cb) cb.checked = true;
-      });
-      updateUI();
+      saveData.checked.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
+      updateUI(false); // 読み込み時は音を鳴らさない
     }
   }
 
@@ -190,35 +205,35 @@
     saveProgress();
   }
 
-  // 状態に合わせてエリア開放やクリア演出を制御
-  function updateUI() {
+  let area1WasCleared = false; // 二度鳴り防止用
+
+  function updateUI(shouldPlaySound) {
     const area1Cbs = Array.from(area1.querySelectorAll('.quest-check'));
     const area1Done = area1Cbs.every(cb => cb.checked);
     const allDone = Array.from(checkboxes).every(cb => cb.checked);
 
-    // エリア2のロック解除
     if (area1Done) {
       area2.classList.remove('is-locked');
+      // はじめてエリア1をクリアした瞬間だけ音を鳴らす
+      if (shouldPlaySound && !area1WasCleared) {
+        playLevelUpSound();
+        area1WasCleared = true;
+      }
     } else {
       area2.classList.add('is-locked');
+      area1WasCleared = false;
     }
 
-    // 全クリア判定
     if (allDone) {
       document.body.classList.add('all-cleared');
-      statusLabel.innerText = "本日の冒険は終了しました！ 🏰";
+      statusLabel.innerText = "すべてのミッションを完了！伝説達成 🌟";
     } else {
       document.body.classList.remove('all-cleared');
-      statusLabel.innerText = `冒険の書：${getTodayStr()} 記録中...`;
+      statusLabel.innerText = `冒険の記録：${getTodayStr()}`;
     }
   }
 
-  // イベント設定
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', saveProgress);
-  });
-
-  // 起動時
+  checkboxes.forEach(cb => cb.addEventListener('change', saveProgress));
   window.onload = loadProgress;
 </script>
 </body>

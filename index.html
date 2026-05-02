@@ -112,6 +112,7 @@
 <div class="world-map">
   <div class="path-line"></div>
   
+  <!-- ダンジョン1 (6項目) -->
   <div id="area-1" class="dungeon-area">
     <div class="dungeon-header">ダンジョン1：めざめよ！COSMO</div>
     <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
@@ -123,6 +124,7 @@
     <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（20回）</div></div>
   </div>
 
+  <!-- ダンジョン2 (7項目) -->
   <div id="area-2" class="dungeon-area is-locked">
     <div class="dungeon-header">ダンジョン2：そして頂点へ…</div>
     <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（40回）</div></div>
@@ -143,37 +145,37 @@
 <div class="footer" id="status-label">冒険の書を読み込み中...</div>
 
 <script>
-  const STORAGE_KEY = 'DQ_QUEST_SOUND_V1';
+  const STORAGE_KEY = 'DQ_HAPPY_QUEST_V1';
   const checkboxes = document.querySelectorAll('.quest-check');
   const area1 = document.getElementById('area-1');
   const area2 = document.getElementById('area-2');
   const statusLabel = document.getElementById('status-label');
 
-  // レベルアップ音の合成
+  // n.SSign "Happy &" 風レベルアップ音 (ドッドッドミレッド〜♪)
   function playLevelUpSound() {
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const notes = [
-      { f: 523.25, t: 0.1 }, // ド
-      { f: 523.25, t: 0.1 }, // ド
-      { f: 523.25, t: 0.1 }, // ド
-      { f: 523.25, t: 0.2 }, // ド (少し長く)
-      { f: 415.30, t: 0.2 }, // ソ#
-      { f: 466.16, t: 0.2 }, // シb
-      { f: 523.25, t: 0.4 }  // ド (高い)
+      { f: 523.25, t: 0.10 }, // ド (Hap-)
+      { f: 523.25, t: 0.10 }, // ド (-py)
+      { f: 523.25, t: 0.10 }, // ド (&)
+      { f: 659.25, t: 0.15 }, // ミ
+      { f: 587.33, t: 0.15 }, // レ
+      { f: 523.25, t: 0.35 }  // ド！
     ];
+
     let time = context.currentTime;
-    notes.forEach(note => {
+    notes.forEach((note, i) => {
       const osc = context.createOscillator();
       const gain = context.createGain();
-      osc.type = 'square'; // レトロなピコピコ音
+      osc.type = 'triangle'; // 少し丸みのあるポップな音
       osc.frequency.setValueAtTime(note.f, time);
-      gain.gain.setValueAtTime(0.1, time);
+      gain.gain.setValueAtTime(0.2, time);
       gain.gain.exponentialRampToValueAtTime(0.01, time + note.t);
       osc.connect(gain);
       gain.connect(context.destination);
       osc.start(time);
       osc.stop(time + note.t);
-      time += note.t + 0.02;
+      time += note.t + 0.03;
     });
   }
 
@@ -185,7 +187,7 @@
   function saveProgress() {
     const checkedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayStr(), checked: checkedIds }));
-    updateUI(true); // 音を鳴らすフラグを立てる
+    updateUI(true);
   }
 
   function loadProgress() {
@@ -196,7 +198,7 @@
       resetToday();
     } else {
       saveData.checked.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
-      updateUI(false); // 読み込み時は音を鳴らさない
+      updateUI(false);
     }
   }
 
@@ -205,7 +207,7 @@
     saveProgress();
   }
 
-  let area1WasCleared = false; // 二度鳴り防止用
+  let area1WasCleared = false; 
 
   function updateUI(shouldPlaySound) {
     const area1Cbs = Array.from(area1.querySelectorAll('.quest-check'));
@@ -214,7 +216,6 @@
 
     if (area1Done) {
       area2.classList.remove('is-locked');
-      // はじめてエリア1をクリアした瞬間だけ音を鳴らす
       if (shouldPlaySound && !area1WasCleared) {
         playLevelUpSound();
         area1WasCleared = true;
@@ -226,7 +227,7 @@
 
     if (allDone) {
       document.body.classList.add('all-cleared');
-      statusLabel.innerText = "すべてのミッションを完了！伝説達成 🌟";
+      statusLabel.innerText = "伝説達成！Happy & になれる一日を 🌟";
     } else {
       document.body.classList.remove('all-cleared');
       statusLabel.innerText = `冒険の記録：${getTodayStr()}`;

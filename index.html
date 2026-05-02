@@ -11,57 +11,55 @@
   }
   
   body { 
-    background: #000; 
-    color: var(--dq-white); font-family: 'DotGothic16', sans-serif; 
+    background: #000; color: var(--dq-white); font-family: 'DotGothic16', sans-serif; 
     margin: 0; padding: 40px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
     overflow-x: hidden; position: relative;
   }
 
-  /* --- 星空の演出 --- */
   body::before {
-    content: "";
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at 50% 50%, #0d1b3e 0%, #000 80%);
-    z-index: -2;
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 50%, #0d1b3e 0%, #000 80%); z-index: -2;
   }
 
   .stars-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
     background-image: 
       radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
       radial-gradient(1.5px 1.5px at 100px 150px, #fff, rgba(0,0,0,0)),
-      radial-gradient(1px 1px at 250px 50px, #ddd, rgba(0,0,0,0)),
-      radial-gradient(2px 2px at 150px 300px, #fff, rgba(0,0,0,0)),
-      radial-gradient(1.5px 1.5px at 300px 200px, #eee, rgba(0,0,0,0));
-    background-size: 350px 350px;
-    animation: star-blink 4s infinite alternate;
+      radial-gradient(2px 2px at 150px 300px, #fff, rgba(0,0,0,0));
+    background-size: 350px 350px; animation: star-blink 4s infinite alternate;
   }
-
   @keyframes star-blink { 0% { opacity: 0.5; } 100% { opacity: 0.9; } }
 
   .main-title { 
     font-family: 'Inter', sans-serif; font-weight: 900; font-size: 44px; color: #ffffff; text-align: center;
     letter-spacing: -1.5px; -webkit-text-stroke: 1.2px #000;
     text-shadow: 4px 4px 0px var(--dq-blue), 0 0 25px rgba(255,255,255,0.4);
-    margin-bottom: 40px; line-height: 1.1; z-index: 1;
+    margin-bottom: 40px; z-index: 1;
   }
 
   .world-map { position: relative; width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; z-index: 1; }
 
+  /* 黄金の道：初期値 0% から JS で伸ばす */
   .path-line { 
-    position: absolute; top: 90px; bottom: 40px; width: 10px; 
-    background: var(--path-bg); z-index: 0; border-radius: 5px; 
+    position: absolute; top: 80px; width: 10px; height: 0%;
+    background: linear-gradient(to bottom, var(--dq-gold), #ff8c00); 
+    z-index: 0; border-radius: 5px; box-shadow: 0 0 15px var(--dq-gold);
+    transition: height 0.5s ease;
+  }
+  /* 背景の暗い道 */
+  .path-bg-line {
+    position: absolute; top: 80px; bottom: 80px; width: 10px;
+    background: var(--path-bg); z-index: -1; border-radius: 5px;
   }
 
   .dungeon-area { width: 100%; transition: 0.8s ease; position: relative; z-index: 1; margin-bottom: 40px; }
   .dungeon-area.is-locked { opacity: 0.15; filter: grayscale(1) blur(3px); pointer-events: none; }
 
   .dungeon-header { 
-    z-index: 2; background: rgba(0, 0, 0, 0.8); border: 4px double #fff; padding: 10px; 
+    background: rgba(0, 0, 0, 0.8); border: 4px double #fff; padding: 10px; 
     margin: 40px 0 20px; color: var(--dq-gold); font-size: 18px; text-align: center; width: 90%; 
-    box-sizing: border-box; margin-left: auto; margin-right: auto; position: relative;
-    backdrop-filter: blur(5px);
+    box-sizing: border-box; margin-left: auto; margin-right: auto; backdrop-filter: blur(5px);
   }
 
   .quest-item { position: relative; z-index: 1; display: flex; align-items: center; width: 100%; margin: 18px 0; }
@@ -81,12 +79,10 @@
 
   .quest-window { 
     background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 12px; font-size: 14px; flex: 1; 
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.8); pointer-events: none;
-    white-space: pre-line; line-height: 1.4; backdrop-filter: blur(5px);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.8); white-space: pre-line; line-height: 1.4; backdrop-filter: blur(5px);
   }
   .quest-check:checked ~ .quest-window { border-color: var(--dq-gold); color: var(--dq-gold); }
 
-  /* クリア演出 */
   .goal-zone { margin-top: 40px; text-align: center; opacity: 0.05; transition: 2s ease; transform: scale(0.8); }
   body.all-cleared .goal-zone { opacity: 1; transform: scale(1.1); }
   .castle-icon { font-size: 80px; display: block; filter: brightness(0.1) grayscale(1); transition: 2.5s ease-in-out; }
@@ -98,7 +94,6 @@
     text-shadow: 2px 2px 0px var(--dq-blue), 0 0 15px var(--dq-gold); transition: 2s;
   }
   body.all-cleared .clear-message { opacity: 1; animation: bounce 1.5s infinite; }
-
   @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
   .footer { margin: 60px 0 20px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; padding-top: 15px; width: 100%; z-index: 1; }
@@ -110,15 +105,15 @@
 <div class="main-title">DAILY QUEST</div>
 
 <div class="world-map">
-  <div class="path-line"></div>
+  <div class="path-bg-line"></div>
+  <div class="path-line" id="path-line"></div>
   
   <div id="area-1" class="dungeon-area">
     <div class="dungeon-header">ダンジョン1：めざめよ！COSMO</div>
     <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
     <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 広告視聴❤️</div></div>
     <div class="quest-item"><input type="checkbox" id="q3" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP ルーレット❤️</div></div>
-    <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙
-（5日連続満点🩷）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙（5日連続満点🩷）</div></div>
     <div class="quest-item"><input type="checkbox" id="q5" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast チェックイン 💙</div></div>
     <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（20回）</div></div>
   </div>
@@ -143,49 +138,48 @@
 <div class="footer" id="status-label">冒険の書を読み込み中...</div>
 
 <script>
-  const STORAGE_KEY = 'DQ_RHYTHM_QUEST_V2';
+  const STORAGE_KEY = 'DQ_HAPPY_QUEST_FINAL_V1';
   const checkboxes = document.querySelectorAll('.quest-check');
   const area1 = document.getElementById('area-1');
   const area2 = document.getElementById('area-2');
+  const pathLine = document.getElementById('path-line');
   const statusLabel = document.getElementById('status-label');
 
-  // n.SSign "Happy &" リズム再現：八分休符から始まる裏打ち ver.
-  function playLevelUpSound() {
+  // 音源生成関数
+  function playMelody(notes) {
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // 基本単位：八分音符を0.15秒とするテンポ設定
-    const unit = 0.15; 
-    
-    const notes = [
-      { f: 0, d: unit },                   // 八分休符
-      { f: 523.25, d: unit },              // ド (八分音符)
-      { f: 523.25, d: unit },              // ド (八分音符)
-      { f: 523.25, d: unit * 0.75 },       // ド (付点十六分音符)
-      { f: 659.25, d: unit * 0.25 },       // ミ (十六分音符)
-      { f: 587.33, d: unit * 0.4, s: true }, // レ (八分音符：スタッカート)
-      { f: 523.25, d: unit * 3 }           // ド (付点四分音符)
-    ];
-
     let time = context.currentTime;
-    notes.forEach((note) => {
-      if (note.f > 0) {
+    notes.forEach(n => {
+      if (n.f > 0) {
         const osc = context.createOscillator();
         const gain = context.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(note.f, time);
-        
+        osc.frequency.setValueAtTime(n.f, time);
         gain.gain.setValueAtTime(0.2, time);
-        // スタッカート(s:true)なら急激に音を消す
-        const fadeTime = note.s ? 0.05 : note.d * 0.8;
-        gain.gain.exponentialRampToValueAtTime(0.001, time + fadeTime);
-        
-        osc.connect(gain);
-        gain.connect(context.destination);
-        osc.start(time);
-        osc.stop(time + note.d);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + n.d);
+        osc.connect(gain); gain.connect(context.destination);
+        osc.start(time); osc.stop(time + n.d);
       }
-      time += note.d;
+      time += n.d + (n.g || 0.03);
     });
+  }
+
+  // ダンジョン1突破音：ドッドッドミレッド〜♪（裏打ち）
+  function playDungeon1Sound() {
+    const u = 0.15;
+    playMelody([
+      { f: 0, d: u }, { f: 523, d: u }, { f: 523, d: u }, { f: 523, d: u*0.75 },
+      { f: 659, d: u*0.25 }, { f: 587, d: u*0.4 }, { f: 523, d: u*3 }
+    ]);
+  }
+
+  // お城到達音：Happy & サビ風ファンファーレ（さらにHappy!）
+  function playGoalSound() {
+    const u = 0.12; // テンポ早め
+    playMelody([
+      { f: 523, d: u }, { f: 659, d: u }, { f: 783, d: u }, { f: 1046, d: u*2 }, // ドミソド〜
+      { f: 0, d: u }, { f: 880, d: u }, { f: 783, d: u }, { f: 659, d: u }, { f: 523, d: u*4 } // ラソミド〜〜
+    ]);
   }
 
   function getTodayStr() {
@@ -216,29 +210,32 @@
     saveProgress();
   }
 
-  let area1WasCleared = false; 
+  let area1Cleared = false;
+  let allCleared = false;
 
-  function updateUI(shouldPlaySound) {
+  function updateUI(shouldPlay) {
     const area1Cbs = Array.from(area1.querySelectorAll('.quest-check'));
-    const area1Done = area1Cbs.every(cb => cb.checked);
-    const allDone = Array.from(checkboxes).every(cb => cb.checked);
+    const isArea1Done = area1Cbs.every(cb => cb.checked);
+    const isAllDone = Array.from(checkboxes).every(cb => cb.checked);
+    
+    // 光の道の長さを計算
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const progressPercent = (checkedCount / checkboxes.length) * 90; // 最大90%まで伸びる
+    pathLine.style.height = progressPercent + "%";
 
-    if (area1Done) {
+    if (isArea1Done) {
       area2.classList.remove('is-locked');
-      if (shouldPlaySound && !area1WasCleared) {
-        playLevelUpSound();
-        area1WasCleared = true;
-      }
+      if (shouldPlay && !area1Cleared) { playDungeon1Sound(); area1Cleared = true; }
     } else {
-      area2.classList.add('is-locked');
-      area1WasCleared = false;
+      area2.classList.add('is-locked'); area1Cleared = false;
     }
 
-    if (allDone) {
+    if (isAllDone) {
       document.body.classList.add('all-cleared');
+      if (shouldPlay && !allCleared) { playGoalSound(); allCleared = true; }
       statusLabel.innerText = "伝説達成！Happy & になれる一日を 🌟";
     } else {
-      document.body.classList.remove('all-cleared');
+      document.body.classList.remove('all-cleared'); allCleared = false;
       statusLabel.innerText = `冒険の記録：${getTodayStr()}`;
     }
   }

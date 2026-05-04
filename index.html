@@ -54,10 +54,38 @@
   .dungeon-area { width: 100%; transition: 0.8s ease; position: relative; z-index: 1; margin-bottom: 40px; }
   .dungeon-area.is-locked { opacity: 0.15; filter: grayscale(1) blur(3px); pointer-events: none; }
 
+  /* オシャレな2行ヘッダーのデザイン */
   .dungeon-header { 
-    background: rgba(0, 0, 0, 0.8); border: 4px double #fff; padding: 10px; 
-    margin: 40px 0 20px; color: var(--dq-gold); font-size: 18px; text-align: center; width: 90%; 
-    box-sizing: border-box; margin-left: auto; margin-right: auto; backdrop-filter: blur(5px);
+    background: rgba(20, 20, 40, 0.7); 
+    border: 2px solid rgba(255,255,255,0.3); 
+    border-left: 8px solid var(--dq-gold); 
+    padding: 15px 10px; 
+    margin: 40px 0 20px; 
+    text-align: left; 
+    width: 95%; 
+    box-sizing: border-box; 
+    margin-left: auto; 
+    margin-right: auto; 
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  /* ダンジョン番号を背景に溶け込ませる */
+  .dungeon-header b { 
+    font-size: 12px; 
+    color: rgba(255,215,0,0.5); 
+    display: block; 
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  /* サブタイトルを大きく主役に */
+  .dungeon-header span { 
+    font-size: 20px; 
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255,215,0,0.3);
   }
 
   .quest-item { position: relative; z-index: 1; display: flex; align-items: center; width: 100%; margin: 18px 0; }
@@ -81,7 +109,6 @@
   }
   .quest-check:checked ~ .quest-window { border-color: var(--dq-gold); color: var(--dq-gold); }
 
-  /* クイック・ワープ ボタン */
   .warp-btn {
     background: #001a33; border: 2px solid #00ffff; color: #00ffff; padding: 10px 22px;
     font-family: 'DotGothic16', sans-serif; cursor: pointer; margin-top: 10px;
@@ -89,7 +116,7 @@
   }
   .warp-btn:hover { background: #00ffff; color: #000; }
   .warp-container { text-align: center; margin: 10px 0; }
-  .warp-note { font-size: 11px; color: #00ffff; margin-top: 5px; display: block; opacity: 0.8; letter-spacing: 2px; }
+  .warp-note { font-size: 11px; color: #00ffff; margin-top: 6px; display: block; opacity: 0.9; }
 
   .goal-zone { margin-top: 40px; text-align: center; opacity: 0.05; transition: 2s ease; transform: scale(0.8); }
   body.all-cleared .goal-zone { opacity: 1; transform: scale(1.1); }
@@ -116,7 +143,7 @@
   <div class="path-line" id="path-line"></div>
   
   <div id="area-1" class="dungeon-area">
-    <div class="dungeon-header">ダンジョン 01：めざめよ！COSMO</div>
+    <div class="dungeon-header"><b>DUNGEON 01</b><span>めざめよ！ＣＯＳＭＯ</span></div>
     <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
     <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 広告視聴❤️</div></div>
     <div class="quest-item"><input type="checkbox" id="q3" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP ルーレット❤️</div></div>
@@ -126,12 +153,12 @@
     
     <div class="warp-container">
         <button class="warp-btn" onclick="openArea2()">🌀 クイック・ワープ</button>
-        <span class="warp-note">ショートカット</span>
+        <span class="warp-note">ダンジョン１の途中で２へ進めます</span>
     </div>
   </div>
 
   <div id="area-2" class="dungeon-area is-locked">
-    <div class="dungeon-header">ダンジョン 02：そして頂点へ…</div>
+    <div class="dungeon-header"><b>DUNGEON 02</b><span>そして頂点へ…</span></div>
     <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（40回）</div></div>
     <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（60回）</div></div>
     <div class="quest-item"><input type="checkbox" id="q9" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat 広告視聴💗（15回）</div></div>
@@ -158,6 +185,8 @@
   const statusLabel = document.getElementById('status-label');
 
   let warpEnabled = false; 
+  let area1Cleared = false;
+  let allCleared = false;
 
   function playMelody(notes) {
     const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -199,7 +228,7 @@
 
   function openArea2() {
     warpEnabled = true;
-    updateUI(false);
+    updateUI(false, false);
     statusLabel.innerText = "🌀 ショートカットを発動しました";
     saveProgress();
   }
@@ -209,35 +238,7 @@
     return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
   }
 
-  function saveProgress() {
-    const checkedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayStr(), checked: checkedIds, warp: warpEnabled }));
-    updateUI(true);
-  }
-
-  function loadProgress() {
-    const rawData = localStorage.getItem(STORAGE_KEY);
-    if (!rawData) { updateUI(false); return; }
-    const saveData = JSON.parse(rawData);
-    if (saveData.date !== getTodayStr()) {
-      resetToday();
-    } else {
-      warpEnabled = saveData.warp || false;
-      saveData.checked.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
-      updateUI(false);
-    }
-  }
-
-  function resetToday() {
-    checkboxes.forEach(cb => cb.checked = false);
-    warpEnabled = false;
-    saveProgress();
-  }
-
-  let area1Cleared = false;
-  let allCleared = false;
-
-  function updateUI(shouldPlay) {
+  function updateUI(shouldPlay, isChecked) {
     const area1Cbs = Array.from(area1.querySelectorAll('.quest-check'));
     const isArea1Done = area1Cbs.every(cb => cb.checked);
     const isAllDone = Array.from(checkboxes).every(cb => cb.checked);
@@ -248,7 +249,7 @@
 
     if (isArea1Done || warpEnabled) {
       area2.classList.remove('is-locked');
-      if (shouldPlay && isArea1Done && !area1Cleared) {
+      if (shouldPlay && isChecked && isArea1Done && !area1Cleared) {
           playHappySound(); 
           area1Cleared = true;
       }
@@ -259,12 +260,42 @@
 
     if (isAllDone) {
       document.body.classList.add('all-cleared');
-      if (shouldPlay && !allCleared) { playSpiceSound(); allCleared = true; }
+      if (shouldPlay && isChecked && !allCleared) { 
+          playSpiceSound(); 
+          allCleared = true; 
+      }
       statusLabel.innerText = "ALL MISSION CLEAR! Spiceを効かせよう 🔥";
     } else {
-      document.body.classList.remove('all-cleared'); allCleared = false;
+      document.body.classList.remove('all-cleared'); 
+      allCleared = false;
       if (!warpEnabled) statusLabel.innerText = `冒険の記録：${getTodayStr()}`;
     }
+  }
+
+  function saveProgress(e) {
+    const isChecked = e ? e.target.checked : false;
+    const checkedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayStr(), checked: checkedIds, warp: warpEnabled }));
+    updateUI(true, isChecked);
+  }
+
+  function loadProgress() {
+    const rawData = localStorage.getItem(STORAGE_KEY);
+    if (!rawData) { updateUI(false, false); return; }
+    const saveData = JSON.parse(rawData);
+    if (saveData.date !== getTodayStr()) {
+      resetToday();
+    } else {
+      warpEnabled = saveData.warp || false;
+      saveData.checked.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
+      updateUI(false, false);
+    }
+  }
+
+  function resetToday() {
+    checkboxes.forEach(cb => cb.checked = false);
+    warpEnabled = false;
+    saveProgress();
   }
 
   checkboxes.forEach(cb => cb.addEventListener('change', saveProgress));

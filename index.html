@@ -142,11 +142,12 @@
   <div id="area-1" class="dungeon-area">
     <div class="dungeon-header"><b>DUNGEON 01</b><span>めざめよ！ＣＯＳＭＯ</span></div>
     <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
-    <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 広告視聴❤️</div></div>
+    <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席後広告視聴❤️</div></div>
     <div class="quest-item"><input type="checkbox" id="q3" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP ルーレット❤️</div></div>
     <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙（5日連続満点🩷）</div></div>
     <div class="quest-item"><input type="checkbox" id="q5" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast チェックイン 💙</div></div>
-    <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（20回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴 💙
+(視聴ボタン3つ×5周 完了！)</div></div>
     
     <div class="warp-container">
         <button class="warp-btn" onclick="openArea2()">🌀 クイック・ワープ</button>
@@ -156,8 +157,10 @@
 
   <div id="area-2" class="dungeon-area is-locked">
     <div class="dungeon-header"><b>DUNGEON 02</b><span>そして頂点へ…</span></div>
-    <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（40回）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（60回）</div></div>
+    <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴 💙
+(さらに視聴ボタン3つ×5周！)</div></div>
+    <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴 💙
+(ラスト！視聴ボタン3つ×10周🔥)</div></div>
     <div class="quest-item"><input type="checkbox" id="q9" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat 広告視聴💗（15回）</div></div>
     <div class="quest-item"><input type="checkbox" id="q10" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat クイズ💗（1回無料）</div></div>
     <div class="quest-item"><input type="checkbox" id="q11" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat リワード広告視聴💗</div></div>
@@ -254,7 +257,6 @@
       area1Cleared = false;
     }
 
-    // ステータス表示の組み立て
     let statusText = `冒険の記録：${getTodayStr()}`;
     if (warpEnabled && !isAllDone) statusText += " (🌀Warp)";
 

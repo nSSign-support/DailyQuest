@@ -2,273 +2,187 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAILY QUEST - デイリーQUEST</title>
-<link href="https://googleapis.com" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>投票アイテム収集リスト</title>
+<!-- 外部ライブラリの読み込み -->
+<script src="https://jsdelivr.net" defer></script>
 <style>
-  :root { 
-    --dq-blue: #0a0a2e; --dq-white: #ffffff; --dq-gold: #ffd700; --path-bg: #333;
+  :root {
+    --gold: #FFD700;
+    --orange: #FF8C00;
+    --red: #D32F2F;
+    --app-blue: #3131FF;
+    --heart-red: #FF0000;
   }
+  body { margin: 0; background: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; }
   
-  body { 
-    background: #000; color: var(--dq-white); font-family: 'DotGothic16', sans-serif; 
-    margin: 0; padding: 40px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-    overflow-x: hidden; position: relative;
+  .container { 
+    background: linear-gradient(135deg, var(--gold), var(--orange)); 
+    padding: 15px; border-radius: 24px; width: 90%; max-width: 360px; margin: 15px; 
+    text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transition: all 0.8s ease;
+    will-change: transform, background;
   }
 
-  body::before {
-    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at 50% 50%, #0d1b3e 0%, #000 80%); z-index: -2;
+  .all-completed {
+    background: linear-gradient(45deg, #FFD700, #FF8C00, #FF0080, #7928CA);
+    background-size: 300% 300%;
+    animation: shine 3s linear infinite;
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
   }
+  @keyframes shine { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-  .stars-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-    background-image: 
-      radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
-      radial-gradient(1.5px 1.5px at 100px 150px, #fff, rgba(0,0,0,0)),
-      radial-gradient(2px 2px at 150px 300px, #fff, rgba(0,0,0,0));
-    background-size: 350px 350px; animation: star-blink 4s infinite alternate;
-  }
-  @keyframes star-blink { 0% { opacity: 0.5; } 100% { opacity: 0.9; } }
-
-  .main-title { 
-    font-family: 'Inter', sans-serif; font-weight: 900; font-size: 44px; color: #ffffff; text-align: center;
-    letter-spacing: -1.5px; -webkit-text-stroke: 1.2px #000;
-    text-shadow: 4px 4px 0px var(--dq-blue), 0 0 25px rgba(255,255,255,0.4);
-    margin-bottom: 40px; z-index: 1;
-  }
-
-  .world-map { position: relative; width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; z-index: 1; }
-
-  .path-line { 
-    position: absolute; top: 80px; width: 10px; height: 0%;
-    background: linear-gradient(to bottom, var(--dq-gold), #ff8c00); 
-    z-index: 0; border-radius: 5px; box-shadow: 0 0 15px var(--dq-gold);
-    transition: height 0.5s ease;
-  }
-  .path-bg-line {
-    position: absolute; top: 80px; bottom: 80px; width: 10px;
-    background: var(--path-bg); z-index: -1; border-radius: 5px;
-  }
-
-  .dungeon-area { width: 100%; transition: 0.8s ease; position: relative; z-index: 1; margin-bottom: 40px; }
-  .dungeon-area.is-locked { opacity: 0.15; filter: grayscale(1) blur(3px); pointer-events: none; }
-
-  .dungeon-header { 
-    background: rgba(0, 0, 0, 0.8); border: 4px double #fff; padding: 10px; 
-    margin: 40px 0 20px; color: var(--dq-gold); font-size: 18px; text-align: center; width: 90%; 
-    box-sizing: border-box; margin-left: auto; margin-right: auto; backdrop-filter: blur(5px);
-  }
-
-  .quest-item { position: relative; z-index: 1; display: flex; align-items: center; width: 100%; margin: 18px 0; }
-  .quest-item:nth-child(even) { flex-direction: row-reverse; }
-
-  .quest-check { position: absolute; width: 52px; height: 52px; opacity: 0; cursor: pointer; z-index: 10; margin: 0 12px; }
-  .quest-item:nth-child(even) .quest-check { right: 0; }
-  .quest-item:nth-child(odd) .quest-check { left: 0; }
-
-  .node-icon { 
-    width: 52px; height: 52px; background: rgba(17, 17, 17, 0.9); border: 3px solid #fff; border-radius: 50%;
-    display: flex; justify-content: center; align-items: center; font-size: 24px; margin: 0 12px; transition: 0.4s; 
-  }
-  .quest-check:checked + .node-icon { background: #221100; border-color: var(--dq-gold); box-shadow: 0 0 15px var(--dq-gold); transform: rotate(360deg) scale(1.1); }
-  .node-icon::before { content: '⚔️'; filter: grayscale(1); opacity: 0.5; }
-  .quest-check:checked + .node-icon::before { content: '✨'; filter: grayscale(0); opacity: 1; }
-
-  .quest-window { 
-    background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 12px; font-size: 14px; flex: 1; 
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.8); white-space: pre-line; line-height: 1.4; backdrop-filter: blur(5px);
-  }
-  .quest-check:checked ~ .quest-window { border-color: var(--dq-gold); color: var(--dq-gold); }
-
-  /* 旅の扉（ワープボタン） */
-  .warp-btn {
-    background: #001a33; border: 2px solid #00ffff; color: #00ffff; padding: 8px 16px;
-    font-family: 'DotGothic16', sans-serif; cursor: pointer; margin-top: 10px;
-    box-shadow: 0 0 10px #00ffff; transition: 0.3s;
-  }
-  .warp-btn:hover { background: #00ffff; color: #000; }
-  .warp-container { text-align: center; margin: 10px 0; }
-
-  .goal-zone { margin-top: 40px; text-align: center; opacity: 0.05; transition: 2s ease; transform: scale(0.8); }
-  body.all-cleared .goal-zone { opacity: 1; transform: scale(1.1); }
-  .castle-icon { font-size: 80px; display: block; filter: brightness(0.1) grayscale(1); transition: 2.5s ease-in-out; }
-  body.all-cleared .castle-icon { filter: brightness(1.2) grayscale(0) drop-shadow(0 0 40px var(--dq-gold)); }
+  #date { font-size: 0.9rem; font-weight: bold; color: #fff; margin-bottom: 5px; display: block; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
   
-  .clear-message {
-    font-family: 'Inter', sans-serif; font-weight: 900; font-size: 24px; color: #fff;
-    margin-top: 20px; opacity: 0; -webkit-text-stroke: 1px #000;
-    text-shadow: 2px 2px 0px var(--dq-blue), 0 0 15px var(--dq-gold); transition: 2s;
+  h2 { font-size: 1.6rem; font-weight: 900; margin: 0; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); line-height: 1.2; }
+  .sub-title { font-size: 0.75rem; color: #fff; font-weight: bold; margin-bottom: 10px; display: block; opacity: 0.9; }
+  
+  .limit-info { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 10px; margin-bottom: 12px; color: #333; text-align: left; line-height: 1.4; font-weight: bold; }
+  .limit-info b { color: var(--app-blue); background: #fff; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-bottom: 2px; font-size: 0.8rem; }
+  .limit-text { font-size: 0.65rem; white-space: nowrap; display: flex; align-items: center; flex-wrap: wrap; letter-spacing: -0.02em; } 
+  
+  .css-heart {
+    display: inline-block;
+    width: 0.7em;
+    height: 0.7em;
+    background-color: var(--heart-red);
+    position: relative;
+    transform: rotate(45deg);
+    margin: 0 0.4em 0 0.3em; 
+    vertical-align: baseline; 
   }
-  body.all-cleared .clear-message { opacity: 1; animation: bounce 1.5s infinite; }
+  .css-heart::before, .css-heart::after {
+    content: ""; width: 0.7em; height: 0.7em; background-color: var(--heart-red); border-radius: 50%; position: absolute;
+  }
+  .css-heart::before { left: -0.35em; top: 0; }
+  .css-heart::after { left: 0; top: -0.35em; }
 
-  .footer { margin: 60px 0 20px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; padding-top: 15px; width: 100%; z-index: 1; }
+  .item { 
+    background: #fff; display: flex; align-items: center; padding: 12px 15px; 
+    border-radius: 15px; margin-bottom: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  .item.is-completed { opacity: 0.4; transform: scale(0.95); background: #f8f8f8; }
+  
+  .item span { font-size: 1rem; color: #333; font-weight: bold; flex-grow: 1; text-align: left; line-height: 1.2; }
+  .app-tag { color: var(--app-blue); font-size: 0.75rem; display: block; margin-bottom: 2px; font-weight: bold; }
+  
+  input[type="checkbox"] { width: 26px; height: 26px; margin-right: 12px; accent-color: var(--orange); flex-shrink: 0; }
+  
+  .footer { margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 12px; color: #fff; text-align: left; font-size: 0.8rem; line-height: 1.6; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+  .footer b { font-size: 0.8rem; display: block; margin-bottom: 4px; }
+  .indent { font-size: 0.62rem; padding-left: 1.2em; text-indent: -1.2em; display: block; letter-spacing: -0.01em; opacity: 0.95; }
 </style>
 </head>
 <body>
 
-<div class="stars-container"></div>
-<div class="main-title">DAILY QUEST</div>
-
-<div class="world-map">
-  <div class="path-bg-line"></div>
-  <div class="path-line" id="path-line"></div>
+<div class="container" id="box">
+  <span id="date"></span>
+  <h2 id="title">クイック・パスポート</h2>
+  <span class="sub-title" id="sub-title">Ｄ１途中でＤ２へ</span>
   
-  <div id="area-1" class="dungeon-area">
-    <div class="dungeon-header">ダンジョン1：めざめよ！COSMO</div>
-    <div class="quest-item"><input type="checkbox" id="q1" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 出席💙</div></div>
-    <div class="quest-item"><input type="checkbox" id="q2" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP 広告視聴❤️</div></div>
-    <div class="quest-item"><input type="checkbox" id="q3" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP ルーレット❤️</div></div>
-    <div class="quest-item"><input type="checkbox" id="q4" class="quest-check"><div class="node-icon"></div><div class="quest-window">IDOL CHAMP クイズ💙（5日連続満点🩷）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q5" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast チェックイン 💙</div></div>
-    <div class="quest-item"><input type="checkbox" id="q6" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（20回）</div></div>
+  <div class="limit-info">
+    <b>IDOL CHAMP</b>
+    <span class="limit-text">💙：毎月月末まで　<span class="css-heart"></span>：獲得から90日</span>
+    <b>Fancast</b>
+    <span class="limit-text">💙：獲得から30日（チェックイン・広告視聴分）</span>
+  </div>
+
+  <div id="list">
+    <label class="item"><input type="checkbox" id="t1" class="cb"><span><small class="app-tag">IDOL CHAMP</small>出席💙</span></label>
+    <label class="item"><input type="checkbox" id="t2" class="cb"><span><small class="app-tag">IDOL CHAMP</small>出席後広告視聴<span class="css-heart"></span></span></label>
+    <label class="item"><input type="checkbox" id="t3" class="cb"><span><small class="app-tag">IDOL CHAMP</small>ルーレット<span class="css-heart"></span></span></label>
     
-    <div class="warp-container">
-        <button class="warp-btn" onclick="openArea2()">🌀 旅の扉（D2へワープ）</button>
-    </div>
+    <label class="item"><input type="checkbox" id="t4" class="cb"><span><small class="app-tag">Fancast</small>チェックイン💙</span></label>
+    <label class="item"><input type="checkbox" id="t5" class="cb"><span><small class="app-tag">Fancast</small>広告視聴💙</span></label>
   </div>
 
-  <div id="area-2" class="dungeon-area is-locked">
-    <div class="dungeon-header">ダンジョン2：そして頂点へ…</div>
-    <div class="quest-item"><input type="checkbox" id="q7" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（40回）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q8" class="quest-check"><div class="node-icon"></div><div class="quest-window">Fancast 広告視聴💙（60回）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q9" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat 広告視聴💗（15回）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q10" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat クイズ💗（1回無料）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q11" class="quest-check"><div class="node-icon"></div><div class="quest-window">mubeat リワード広告視聴💗</div></div>
-    <div class="quest-item"><input type="checkbox" id="q12" class="quest-check"><div class="node-icon"></div><div class="quest-window">LiNC 広告視聴💟（30回）</div></div>
-    <div class="quest-item"><input type="checkbox" id="q13" class="quest-check"><div class="node-icon"></div><div class="quest-window">tin 広告視聴💟（20回）</div></div>
-  </div>
-
-  <div class="goal-zone">
-    <span class="castle-icon">🏰</span>
-    <div class="clear-message">MISSION CLEAR!</div>
+  <div class="footer">
+    <b>💡 カムバックが確定するまで</b>
+    <span class="indent">▶ IDOL CHAMPの💙は月末になったらチャートなどへ</span>
+    <span class="indent">▶ Fancastは有効期限が短いため<br>自分のペースでルーティンに組み込んでください</span>
   </div>
 </div>
 
-<div class="footer" id="status-label">冒険の書を読み込み中...</div>
-
 <script>
-  const STORAGE_KEY = 'DQ_SPICE_QUEST_V1';
-  const checkboxes = document.querySelectorAll('.quest-check');
-  const area1 = document.getElementById('area-1');
-  const area2 = document.getElementById('area-2');
-  const pathLine = document.getElementById('path-line');
-  const statusLabel = document.getElementById('status-label');
+(() => {
+  const K_DATA = 'V_LIGHT_ST_V1';
+  const K_DATE = 'V_LIGHT_DT_V1';
+  const cbs = document.querySelectorAll('.cb');
+  const box = document.getElementById('box');
+  const title = document.getElementById('title');
+  const subTitle = document.getElementById('sub-title');
 
-  let warpEnabled = false; // ワープフラグ
+  // 紙吹雪の実行
+  const celebrate = () => {
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#FFD700', '#FF8C00', '#FF0000', '#FFFFFF'] });
+    }
+  };
 
-  function playMelody(notes) {
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    let time = context.currentTime;
-    notes.forEach(n => {
-      if (n.f > 0) {
-        const osc = context.createOscillator();
-        const gain = context.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(n.f, time);
-        gain.gain.setValueAtTime(0.2, time);
-        const fade = n.s ? 0.05 : n.d * 0.9;
-        gain.gain.exponentialRampToValueAtTime(0.001, time + fade);
-        osc.connect(gain); gain.connect(context.destination);
-        osc.start(time); osc.stop(time + n.d);
-      }
-      time += n.d;
+  // 画面表示の更新（完了判定）
+  const update = (fire) => {
+    let ok = 0;
+    cbs.forEach(c => {
+      const p = c.closest('.item');
+      if(c.checked) { ok++; p.classList.add('is-completed'); }
+      else { p.classList.remove('is-completed'); }
     });
-  }
 
-  // D1クリア：Happy & (BPM 85)
-  function playHappySound() {
-    const u = 60 / 85 / 2;
-    playMelody([
-      { f: 0, d: u }, { f: 523.25, d: u }, { f: 523.25, d: u }, { f: 523.25, d: u * 0.75 },
-      { f: 659.25, d: u * 0.25 }, { f: 587.33, d: u, s: true }, { f: 523.25, d: u * 3 }
-    ]);
-  }
+    if(ok === cbs.length) {
+      box.classList.add('all-completed');
+      title.innerHTML = "✨ COMPLETE ✨";
+      subTitle.innerText = "おつかれさまでした！";
+      if(fire) celebrate();
+    } else {
+      box.classList.remove('all-completed');
+      title.innerText = "クイック・パスポート";
+      subTitle.innerText = "Ｄ１途中でＤ２へ";
+    }
+  };
 
-  // お城到達：Spice (BPM 85)
-  function playSpiceSound() {
-    const u = 60 / 85 / 4; // 十六分音符
-    const F = 698.46, G = 783.99, E = 659.25; // ファ, ソ, ミ
-    playMelody([
-      { f: F, d: u }, { f: F, d: u }, { f: F, d: u }, { f: 0, d: u }, // ファファファ(休)
-      { f: F, d: u*2 }, { f: F, d: u }, { f: G, d: u },             // ファーファソ
-      { f: E, d: u*4 },                                           // ミーーー
-      { f: F, d: u*2 }, { f: F, d: u*2 }                          // ファーファー
-    ]);
-  }
-
-  function openArea2() {
-    warpEnabled = true;
-    updateUI(false);
-    statusLabel.innerText = "🌀 旅の扉でワープしました！";
-  }
-
-  function getTodayStr() {
+  // ローカルストレージへ保存（再開可能にする）
+  const save = () => {
+    const d = {};
+    cbs.forEach(c => d[c.id] = c.checked);
+    localStorage.setItem(K_DATA, JSON.stringify(d));
     const now = new Date();
-    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  }
+    localStorage.setItem(K_DATE, now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate());
+  };
 
-  function saveProgress() {
-    const checkedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayStr(), checked: checkedIds, warp: warpEnabled }));
-    updateUI(true);
-  }
+  // データの読み込み（0時リセット判定を含む）
+  const load = () => {
+    const n = new Date();
+    const today = n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate();
+    const targetDate = document.getElementById('date');
+    if(targetDate) targetDate.innerText = today.replace(/-/g, '/');
 
-  function loadProgress() {
-    const rawData = localStorage.getItem(STORAGE_KEY);
-    if (!rawData) { updateUI(false); return; }
-    const saveData = JSON.parse(rawData);
-    if (saveData.date !== getTodayStr()) {
-      resetToday();
+    // 日付が変わっていたらデータを消去（0時リセット）
+    if(localStorage.getItem(K_DATE) !== today) {
+      localStorage.removeItem(K_DATA);
+      cbs.forEach(c => c.checked = false);
     } else {
-      warpEnabled = saveData.warp || false;
-      saveData.checked.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
-      updateUI(false);
+      // 同じ日なら保存したデータを復元（再開可能）
+      const s = JSON.parse(localStorage.getItem(K_DATA) || '{}');
+      cbs.forEach(c => c.checked = !!s[c.id]);
     }
-  }
+    update(false);
+  };
 
-  function resetToday() {
-    checkboxes.forEach(cb => cb.checked = false);
-    warpEnabled = false;
-    saveProgress();
-  }
+  // チェックボックス変更時に保存
+  cbs.forEach(c => c.addEventListener('change', () => { save(); update(true); }));
+  
+  // ブラウザにフォーカスが戻った時に日付を再確認
+  window.addEventListener('focus', () => {
+    const n = new Date();
+    const today = n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate();
+    if(localStorage.getItem(K_DATE) !== today) load();
+  });
 
-  let area1Cleared = false;
-  let allCleared = false;
-
-  function updateUI(shouldPlay) {
-    const area1Cbs = Array.from(area1.querySelectorAll('.quest-check'));
-    const isArea1Done = area1Cbs.every(cb => cb.checked);
-    const isAllDone = Array.from(checkboxes).every(cb => cb.checked);
-    
-    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-    const progressPercent = (checkedCount / checkboxes.length) * 85; 
-    pathLine.style.height = progressPercent + "%";
-
-    // D2開放条件：D1完了 OR ワープ使用
-    if (isArea1Done || warpEnabled) {
-      area2.classList.remove('is-locked');
-      if (shouldPlay && isArea1Done && !area1Cleared) {
-         playHappySound(); 
-         area1Cleared = true;
-      }
-    } else {
-      area2.classList.add('is-locked');
-      area1Cleared = false;
-    }
-
-    if (isAllDone) {
-      document.body.classList.add('all-cleared');
-      if (shouldPlay && !allCleared) { playSpiceSound(); allCleared = true; }
-      statusLabel.innerText = "MISSION CLEAR! Spiceを効かせていこう 🔥";
-    } else {
-      document.body.classList.remove('all-cleared'); allCleared = false;
-      if (!warpEnabled) statusLabel.innerText = `冒険の記録：${getTodayStr()}`;
-    }
-  }
-
-  checkboxes.forEach(cb => cb.addEventListener('change', saveProgress));
-  window.onload = loadProgress;
+  load();
+})();
 </script>
 </body>
 </html>

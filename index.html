@@ -54,7 +54,6 @@
   .dungeon-area { width: 100%; transition: 0.8s ease; position: relative; z-index: 1; margin-bottom: 40px; }
   .dungeon-area.is-locked { opacity: 0.15; filter: grayscale(1) blur(3px); pointer-events: none; }
 
-  /* オシャレな2行ヘッダーのデザイン */
   .dungeon-header { 
     background: rgba(20, 20, 40, 0.7); 
     border: 2px solid rgba(255,255,255,0.3); 
@@ -70,18 +69,16 @@
     position: relative;
     overflow: hidden;
   }
-  /* ダンジョン番号を背景に溶け込ませる */
   .dungeon-header b { 
-    font-size: 12px; 
-    color: rgba(255,215,0,0.5); 
+    font-size: 11px; 
+    color: rgba(255,215,0,0.6); 
     display: block; 
     letter-spacing: 2px;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     text-transform: uppercase;
   }
-  /* サブタイトルを大きく主役に */
   .dungeon-header span { 
-    font-size: 20px; 
+    font-size: 19px; 
     font-weight: bold;
     color: #fff;
     letter-spacing: 1px;
@@ -130,7 +127,7 @@
   }
   body.all-cleared .clear-message { opacity: 1; animation: bounce 1.5s infinite; }
 
-  .footer { margin: 60px 0 20px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; padding-top: 15px; width: 100%; z-index: 1; }
+  .footer { margin: 60px 0 20px; font-size: 13px; color: #aaa; text-align: center; border-top: 1px solid #333; padding-top: 15px; width: 100%; z-index: 1; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -174,7 +171,7 @@
   </div>
 </div>
 
-<div class="footer" id="status-label">冒険の記録をロード中...</div>
+<div class="footer" id="status-label">LOADING...</div>
 
 <script>
   const STORAGE_KEY = 'DQ_SPICE_QUEST_V1';
@@ -229,7 +226,6 @@
   function openArea2() {
     warpEnabled = true;
     updateUI(false, false);
-    statusLabel.innerText = "🌀 ショートカットを発動しました";
     saveProgress();
   }
 
@@ -258,18 +254,22 @@
       area1Cleared = false;
     }
 
+    // ステータス表示の組み立て
+    let statusText = `冒険の記録：${getTodayStr()}`;
+    if (warpEnabled && !isAllDone) statusText += " (🌀Warp)";
+
     if (isAllDone) {
       document.body.classList.add('all-cleared');
       if (shouldPlay && isChecked && !allCleared) { 
           playSpiceSound(); 
           allCleared = true; 
       }
-      statusLabel.innerText = "ALL MISSION CLEAR! Spiceを効かせよう 🔥";
+      statusText += " ✨ MISSION CLEAR! 🔥";
     } else {
       document.body.classList.remove('all-cleared'); 
       allCleared = false;
-      if (!warpEnabled) statusLabel.innerText = `冒険の記録：${getTodayStr()}`;
     }
+    statusLabel.innerText = statusText;
   }
 
   function saveProgress(e) {
